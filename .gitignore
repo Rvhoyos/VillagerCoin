@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+*/build/
+out/
+gradle-app.setting
+!/gradle/wrapper/gradle-wrapper.jar
+
+# IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.settings/
+.classpath
+.project
+bin/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Minecraft Dev
+run/
+*/run/
+logs/
+*/logs/
+crash-reports/
+*/crash-reports/
+debug/
+*/debug/
+test/
+
+# Fabric / Loom
+.fabric/
+.loom-cache/
+.architectury-cache/
+.architectury-transformer/
+
+# NeoForge
+.neoforged.neoforge-coremods-*.jar

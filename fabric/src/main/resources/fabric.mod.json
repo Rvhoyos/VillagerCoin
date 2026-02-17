@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "villager_coin",
+  "version": "${version}",
+  "name": "villager_coin",
+  "description": "Adds Villager Coins and trading mechanics to Minecraft.",
+  "authors": [
+    "Monte_Carlo_Simulations"
+  ],
+  "contact": {
+    "homepage": "https://github.com/raul/villager_coin",
+    "sources": "https://github.com/raul/villager_coin"
+  },
+  "license": "Apache-2.0",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.coinswap.fabric.VillagerCoinFabric"
+    ],
+    "client": [
+      "com.coinswap.fabric.client.VillagerCoinFabricClient"
+    ]
+  },
+  "mixins": [
+    "villager_coin.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~1.21.10",
+    "java": ">=21",
+    "architectury": ">=18.0.6",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
