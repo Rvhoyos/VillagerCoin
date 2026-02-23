@@ -27,12 +27,7 @@ versionRange = "[1.21.10,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.villager_coin]]
-modId = "architectury"
-type = "required"
-versionRange = "[18.0.6,)"
-ordering = "AFTER"
-side = "BOTH"
+
 
 [[mixins]]
 config = "villager_coin.mixins.json"

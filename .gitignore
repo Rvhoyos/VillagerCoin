@@ -27,6 +27,8 @@ bin/
 # Minecraft Dev
 run/
 */run/
+runs/
+*/runs/
 logs/
 */logs/
 crash-reports/
