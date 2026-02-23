@@ -1,7 +1,12 @@
-# Villager Coin
+# Villager Coin (v1.1.0)
 
 Set any item as the currency for Villager trading!
 Want villagers to trade **Diamonds**? **Gold Ingots**? **Cookies**? You can do that.
+
+**Version 1.1.0 Update:**
+- Fully migrated to a native multiloader! (No longer requires Architectury API)
+- Fixed minor mod menu visual bugs
+
 
 **Features:**
 - **Server-Side Compatible:** Clients do not need the mod installed to play! Just drop it on the server.
