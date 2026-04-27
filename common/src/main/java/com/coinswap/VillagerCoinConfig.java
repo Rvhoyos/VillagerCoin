@@ -5,14 +5,17 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.resources.Identifier;
-import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Optional;
 
+/**
+ * JSON-backed configuration for the Villager Coin mod.
+ * Stored at {@code config/villager_coin.json}. Singleton with lazy loading
+ * and {@link #forceReload()} for live config changes without restart.
+ */
 public class VillagerCoinConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File CONFIG_FILE = new File("config/villager_coin.json");
@@ -59,19 +62,22 @@ public class VillagerCoinConfig {
         }
     }
 
+    /** Resolves {@link #currencyItem} to an {@link Item} instance, falling back to emerald. */
     public Item getCurrencyItemInstance() {
         return resolveItem(currencyItem, Items.EMERALD);
     }
 
+    /** Resolves {@link #legacyCurrencyItem} to an {@link Item} instance, falling back to emerald. */
     public Item getLegacyItemInstance() {
         return resolveItem(legacyCurrencyItem, Items.EMERALD);
     }
 
+    /** Looks up an item by registry ID string, returning {@code fallback} if not found. */
     private Item resolveItem(String id, Item fallback) {
         try {
-            Optional<Holder.Reference<Item>> ref = BuiltInRegistries.ITEM.get(Identifier.parse(id));
-            if (ref.isPresent())
-                return ref.get().value();
+            Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(id));
+            if (item != Items.AIR)
+                return item;
         } catch (Exception ignored) {
         }
         return fallback;

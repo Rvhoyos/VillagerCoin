@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+MixinConfigs: villager_coin.mixins.json

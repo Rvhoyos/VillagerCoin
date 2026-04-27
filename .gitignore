@@ -25,6 +25,7 @@ bin/
 
 # Claude Code
 CLAUDE.md
+.cache/
 
 # MacOS
 .DS_Store

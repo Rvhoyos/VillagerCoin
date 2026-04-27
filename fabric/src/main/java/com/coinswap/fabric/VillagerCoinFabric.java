@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import com.coinswap.VillagerCoin;
 
+/** Fabric entrypoint. Initializes the mod and registers commands via Fabric API. */
 public final class VillagerCoinFabric implements ModInitializer {
     @Override
     public void onInitialize() {

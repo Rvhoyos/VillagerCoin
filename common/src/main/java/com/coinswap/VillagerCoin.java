@@ -10,17 +10,26 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.core.registries.BuiltInRegistries;
 
+/**
+ * Main mod class for Villager Coin. Handles initialization and command registration.
+ * Platform-specific entrypoints (Fabric/Forge) delegate to this class.
+ */
 public final class VillagerCoin {
         public static final String MOD_ID = "villager_coin";
 
+        /** Initializes the mod by eagerly loading the config. */
         public static void init() {
                 VillagerCoinConfig.get();
         }
 
+        /**
+         * Registers the {@code /villagercoin} command tree (set, reload, info).
+         * Requires gamemaster (OP level 2) permissions.
+         */
         public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher,
                         CommandBuildContext registry) {
                 dispatcher.register(Commands.literal("villagercoin")
-                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .then(Commands.literal("reload")
                                                 .executes(context -> {
                                                         VillagerCoinConfig.forceReload();
