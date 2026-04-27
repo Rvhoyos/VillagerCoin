@@ -13,6 +13,8 @@ gradle-app.setting
 *.iws
 
 # Eclipse
+.eclipse/
+*/.eclipse/
 .settings/
 .classpath
 .project
@@ -20,6 +22,9 @@ bin/
 
 # VS Code
 .vscode/
+
+# Claude Code
+CLAUDE.md
 
 # MacOS
 .DS_Store
