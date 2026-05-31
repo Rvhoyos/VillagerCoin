@@ -3,6 +3,7 @@
   "package": "com.coinswap.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "refmap": "villager_coin.refmap.json",
   "client": [],
   "mixins": [
     "AbstractVillagerMixin"
