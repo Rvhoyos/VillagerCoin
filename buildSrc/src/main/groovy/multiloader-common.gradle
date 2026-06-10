@@ -95,6 +95,7 @@ processResources {
             'license'                      : license,
             'description'                  : project.description,
             'forge_version'                : forge_version,
+            'forge_version_min'            : forge_version_min,
             'forge_loader_version_range'   : forge_loader_version_range,
             'credits'                      : credits,
             'java_version'                 : java_version
