@@ -1,21 +1,17 @@
 package com.coinswap.mixin;
 
 import com.coinswap.VillagerCoinConfig;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.TradeSet;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.resources.Identifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.Holder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,8 +26,8 @@ import java.util.Optional;
 
 /**
  * Mixin for AbstractVillager to handle currency replacement.
- * This covers both {@link net.minecraft.world.entity.npc.villager.Villager} and
- * {@link net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader} as they both extend
+ * This covers both {@link net.minecraft.world.entity.npc.Villager} and
+ * {@link net.minecraft.world.entity.npc.WanderingTrader} as they both extend
  * AbstractVillager.
  */
 @Mixin(AbstractVillager.class)
@@ -52,12 +48,12 @@ public abstract class AbstractVillagerMixin {
      * it was using, allowing for auto-migration if the config has changed.
      */
     @Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
-    private void onAddAdditionalSaveData(ValueOutput output, CallbackInfo ci) {
+    private void onAddAdditionalSaveData(CompoundTag tag, CallbackInfo ci) {
         // If we have an in-memory currency, save it. Otherwise save global.
         String currencyToSave = (this.villagerCoin_currentCurrency != null)
                 ? this.villagerCoin_currentCurrency
                 : VillagerCoinConfig.get().currencyItem;
-        output.putString(CURRENCY_TAG, currencyToSave);
+        tag.putString(CURRENCY_TAG, currencyToSave);
     }
 
     /**
@@ -66,20 +62,20 @@ public abstract class AbstractVillagerMixin {
      * on load.
      */
     @Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
-    private void onReadAdditionalSaveData(ValueInput input, CallbackInfo ci) {
+    private void onReadAdditionalSaveData(CompoundTag tag, CallbackInfo ci) {
         if (this.offers == null)
             return;
 
         VillagerCoinConfig.forceReload(); // Ensure fresh config on load
         VillagerCoinConfig config = VillagerCoinConfig.get();
 
-        Optional<String> savedCurrency = input.getString(CURRENCY_TAG);
-        Item legacyItemFromNbt = null;
+        Item legacyItemFromNbt;
 
-        if (savedCurrency.isPresent()) {
-            this.villagerCoin_currentCurrency = savedCurrency.get();
-            legacyItemFromNbt = BuiltInRegistries.ITEM.get(Identifier.parse(savedCurrency.get()))
-                    .map(Holder.Reference::value).orElse(Items.EMERALD);
+        if (tag.contains(CURRENCY_TAG)) {
+            String savedCurrency = tag.getString(CURRENCY_TAG);
+            this.villagerCoin_currentCurrency = savedCurrency;
+            Item resolved = BuiltInRegistries.ITEM.get(ResourceLocation.parse(savedCurrency));
+            legacyItemFromNbt = resolved != Items.AIR ? resolved : Items.EMERALD;
         } else {
             // Fallback for pre-mod villagers: Use the configured legacy item
             this.villagerCoin_currentCurrency = BuiltInRegistries.ITEM.getKey(config.getLegacyItemInstance())
@@ -114,8 +110,8 @@ public abstract class AbstractVillagerMixin {
         }
 
         if (!this.villagerCoin_currentCurrency.equals(config.currencyItem)) {
-            Item legacyItem = BuiltInRegistries.ITEM.get(Identifier.parse(this.villagerCoin_currentCurrency))
-                    .map(Holder.Reference::value).orElse(Items.EMERALD);
+            Item resolved = BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.villagerCoin_currentCurrency));
+            Item legacyItem = resolved != Items.AIR ? resolved : Items.EMERALD;
 
             processOffers(this.offers, legacyItem);
 
@@ -126,24 +122,17 @@ public abstract class AbstractVillagerMixin {
 
     /**
      * Handles new trade generation (leveling up, spawning).
-     * In 26.1.2 trades are generated via the instance method addOffersFromTradeSet,
-     * which both Villager and WanderingTrader route through. We intercept it to convert
-     * the freshly generated trades to the configured currency.
+     * Runs after vanilla has added the newly generated trades and converts them
+     * from emeralds to the configured currency.
      */
-    @Inject(method = "addOffersFromTradeSet", at = @At("RETURN"))
-    private void onAddOffersFromTradeSet(ServerLevel level, MerchantOffers offers,
-            ResourceKey<TradeSet> resourceKey, CallbackInfo ci) {
+    @Inject(method = "addOffersFromItemListings", at = @At("RETURN"))
+    private void onAddOffersFromItemListings(MerchantOffers offers,
+            VillagerTrades.ItemListing[] listings, int slots, CallbackInfo ci) {
         processOffers(offers, Items.EMERALD);
         // Ensure we track that this villager is now up to date
         this.villagerCoin_currentCurrency = VillagerCoinConfig.get().currencyItem;
     }
 
-    /**
-     * Core logic to iterate through offers and replace the currency item.
-     * Replaces both the Cost (buy item) and the Result (sell item) if they match
-     * the legacy/emerald item.
-     * Use {@code Items.EMERALD} as legacyItem to strictly replace Emeralds.
-     */
     private static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger();
 
     /**
@@ -161,12 +150,6 @@ public abstract class AbstractVillagerMixin {
 
         boolean anyChanged = false;
         List<MerchantOffer> newOffers = new ArrayList<>();
-
-        // We can't access `this.level()` easily here because it's a mixin to
-        // `AbstractVillager` and we are in `processOffers` which is static-ish but not
-        // static?
-        // Wait, processOffers is an instance method (it calls non-static stuff?).
-        // No, processOffers is private void. It has access to `this`.
 
         LOGGER.info("VillagerCoin: Processing {} offers. LegacyItem: {}, Currency: {}", offers.size(), legacyItem,
                 currency);
