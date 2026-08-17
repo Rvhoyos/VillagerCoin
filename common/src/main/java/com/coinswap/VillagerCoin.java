@@ -45,7 +45,7 @@ public final class VillagerCoin {
                                                                 .executes(context -> {
                                                                         ItemInput itemInput = ItemArgument
                                                                                         .getItem(context, "item");
-                                                                        Item item = itemInput.getItem();
+                                                                        Item item = itemInput.item().value();
                                                                         String id = BuiltInRegistries.ITEM.getKey(item)
                                                                                         .toString();
                                                                         VillagerCoinConfig config = VillagerCoinConfig

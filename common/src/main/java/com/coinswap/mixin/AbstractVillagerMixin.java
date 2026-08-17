@@ -8,7 +8,8 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.entity.npc.villager.VillagerTrades;
+import net.minecraft.world.item.trading.TradeSet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -30,7 +31,7 @@ import java.util.Optional;
 /**
  * Mixin for AbstractVillager to handle currency replacement.
  * This covers both {@link net.minecraft.world.entity.npc.villager.Villager} and
- * {@link net.minecraft.world.entity.npc.WanderingTrader} as they both extend
+ * {@link net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader} as they both extend
  * AbstractVillager.
  */
 @Mixin(AbstractVillager.class)
@@ -125,12 +126,13 @@ public abstract class AbstractVillagerMixin {
 
     /**
      * Handles new trade generation (leveling up, spawning).
-     * This intercepts the new trades before they are added and converts them to the
-     * correct currency.
+     * In 26.1.2 trades are generated via the instance method addOffersFromTradeSet,
+     * which both Villager and WanderingTrader route through. We intercept it to convert
+     * the freshly generated trades to the configured currency.
      */
-    @Inject(method = "addOffersFromItemListings", at = @At("RETURN"))
-    private void onAddOffersFromItemListings(ServerLevel level, MerchantOffers offers,
-            VillagerTrades.ItemListing[] listings, int slots, CallbackInfo ci) {
+    @Inject(method = "addOffersFromTradeSet", at = @At("RETURN"))
+    private void onAddOffersFromTradeSet(ServerLevel level, MerchantOffers offers,
+            ResourceKey<TradeSet> resourceKey, CallbackInfo ci) {
         processOffers(offers, Items.EMERALD);
         // Ensure we track that this villager is now up to date
         this.villagerCoin_currentCurrency = VillagerCoinConfig.get().currencyItem;
