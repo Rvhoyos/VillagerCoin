@@ -23,16 +23,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build NeoForge with Gradle
-        run: ./gradlew :neoforge:build
+      - name: Build both jars with Gradle
+        run: ./gradlew :fabric:build :neoforge:build
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: villager_coin-jar
-          # Upload only the main jar (exclude dev/sources/shadow)
+          # Upload only the main jars (exclude dev/sources/shadow)
           path: |
+            fabric/build/libs/*.jar
             neoforge/build/libs/*.jar
+            !fabric/build/libs/*-dev.jar
+            !fabric/build/libs/*-shadow.jar
+            !fabric/build/libs/*-sources.jar
             !neoforge/build/libs/*-dev.jar
             !neoforge/build/libs/*-shadow.jar
             !neoforge/build/libs/*-sources.jar
