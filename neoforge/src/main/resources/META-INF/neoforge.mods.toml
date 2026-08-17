@@ -11,19 +11,19 @@ authors = "Monte_Carlo_Simulations"
 description = '''
 Adds Villager Coins and trading mechanics to Minecraft.
 '''
-logoFile = "logo.png"
+iconFile = "logo.png"
 
 [[dependencies.villager_coin]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.1.2,)"
+versionRange = "[26.2,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.villager_coin]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.1.2,)"
+versionRange = "[26.2,)"
 ordering = "NONE"
 side = "BOTH"
 
