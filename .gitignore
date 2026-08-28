@@ -23,9 +23,6 @@ bin/
 # VS Code
 .vscode/
 
-# Claude Code
-CLAUDE.md
-
 # MacOS
 .DS_Store
 
