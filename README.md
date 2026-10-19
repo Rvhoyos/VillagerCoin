@@ -1,10 +1,10 @@
-# Villager Coin (v1.4.1)
+# Villager Coin (v1.4.2)
 
 Set any item as the currency for Villager trading!
 Want villagers to trade **Diamonds**? **Gold Ingots**? **Cookies**? You can do that.
 
-**Version 1.4.1 Update:**
-- Added support for Minecraft 26.2 (no feature changes)
+**Version 1.4.2 Update:**
+- Added support for Minecraft 26.3 (no feature changes)
 
 
 **Features:**
